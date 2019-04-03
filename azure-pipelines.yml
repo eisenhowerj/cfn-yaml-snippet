@@ -1,0 +1,93 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+- master
+
+jobs:
+
+- job: 'Snippets'
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  strategy:
+    matrix:
+      # Python35:
+      #   python.version: '3.5'
+      # Python36:
+      #   python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+    maxParallel: 3
+
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: 'x64'
+
+  - script: python -m pip install --upgrade pip && pip install -r requirements.txt
+    displayName: 'Install dependencies'
+
+  - script: |
+      python create-cfn-snippet.py
+      head snippets/resource-types.json
+    displayName: 'Create snippets json'
+
+- job: 'Extension'
+  dependsOn: 'Snippets'
+  pool:
+    vmImage: 'Ubuntu-16.04'
+
+  steps:
+    # - bash: |
+    #   PACKAGE_VERSION=$(node -p "require('./package.json').version")
+    #   if [ -n "$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER" ]; then
+    #     VERSION_STRING=${PACKAGE_VERSION}-pr-${SYSTEM_PULLREQUEST_PULLREQUESTNUMBER}-$(git rev-parse --short HEAD)
+    #   else
+    #     VERSION_STRING=${PACKAGE_VERSION}-ci-$(git rev-parse --short HEAD)
+    #   fi
+    #   npm --no-git-tag-version version $VERSION_STRING
+    #   echo "##vso[build.updatebuildnumber]${VERSION_STRING}_${BUILD_BUILDID}"
+    #   echo "$PACKAGE_VERSION" > version.txt
+    #   displayName: Set version number of package and build
+
+  # Acquire the `vsce` tool and use it to package
+  - script: |
+      sudo npm install -g vsce
+      vsce package
+    displayName: Create VSIX
+
+  - script: |
+      npm run vscode:prepublish
+      cat /home/vsts/.npm/_logs/*.log
+    displayName: Echo npm error logs on failure
+    condition: failed()
+
+  # For releasable builds, we'll want the branch and the changelog
+  # Expects that a 'version.txt' has been laid down by a previous step
+  - bash: |
+      echo $(Build.SourceBranch) | sed "s|refs/[^/]*/||" > branch.txt
+      PACKAGE_VERSION=$(cat version.txt)
+      VERSION_REGEX="## $(echo $PACKAGE_VERSION | sed 's/\./\\./g')"
+      sed -n "/$VERSION_REGEX/,/## 1\..*/p" CHANGELOG.md | head -n -2 > minichangelog.txt
+    displayName: Get branch and mini-changelog
+
+  # # Choose files to publish
+  # - task: CopyFiles@2
+  #   displayName: Stage VSIX for publishing
+  #   inputs:
+  #     contents: |-
+  #       *.vsix
+  #       version.txt
+  #       branch.txt
+  #       minichangelog.txt
+  #     targetFolder: $(Build.ArtifactStagingDirectory)
+
+  # # Publish files as an artifact
+  # - task: PublishBuildArtifacts@1
+  #   displayName: Publish VSIX
+  #   inputs:
+  #     pathToPublish: $(Build.ArtifactStagingDirectory)
+  #     artifactName: azure-pipelines-vscode
