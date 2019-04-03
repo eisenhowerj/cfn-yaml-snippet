@@ -37,9 +37,9 @@
 		"prefix": "parameter",
 		"body": [
 			"${1:ParameterName}:",
-			"  Description: ",
-			"  Type: ${3:|String,Number,CommaDelimitedList|}",
-			"  Default: ${4:-}"
+			"  Description: ${2}",
+			"  Type: ${3|String,Number,CommaDelimitedList|}",
+			"  Default: ${4}"
 		],
 		"description": "",
 		"scope": "source.cloudformation"
@@ -80,7 +80,7 @@
     "security-group-egress-cidr": {
 		"prefix": "security-group-egress-cidr",
 		"body": [
-			"IpProtocol: ${1:|tcp,udp,ip|}",
+			"IpProtocol: ${1|tcp,udp,ip|}",
 			"FromPort: ${2}",
 			"ToPort: ${3}",
 			"CidrIp: ${4}"
@@ -91,7 +91,7 @@
 	"security-group-ingress-cidr": {
 		"prefix": "security-group-ingress-cidr",
 		"body": [
-			"IpProtocol: ${1:|tcp,udp,ip|}",
+			"IpProtocol: ${1|tcp,udp,ip|}",
 			"FromPort: ${2}",
 			"ToPort: ${3}",
 			"CidrIp: ${4}"
