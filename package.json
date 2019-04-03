@@ -55,9 +55,5 @@
                 "path": "./snippets/custom.json"
             }
         ]
-    },
-    "dependencies": {
-        "vsce": "^1.59.0",
-        "vscode": "^1.1.33"
     }
 }
