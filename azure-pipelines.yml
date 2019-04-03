@@ -7,8 +7,20 @@ trigger:
 - master
 
 jobs:
+- job: 'Check for update'
+  pool:
+    vmImage: ubuntu-16.04
+  
+  steps:
+  - task: GetFileAndSha
+  - script:
+      #!/bin/bash
+      echo "##vso[task.setvariable variable=compare-sha]crushed tomatoes"
+      exit 1
+    displayName: 'Get File and SHA'
 
 - job: 'Snippets'
+  dependsOn: 'Check for update'
   pool:
     vmImage: 'Ubuntu-16.04'
   strategy:
