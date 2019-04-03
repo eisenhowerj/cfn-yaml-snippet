@@ -1,49 +1,22 @@
-#!/bin/python
+#!/usr/bin/env python3
 
-import argparse
-import urllib.request
 import json
-from pprint import pprint
+import requests
 
+# Vars
 
-# Input arguments:
-
-parser = argparse.ArgumentParser(description='Create an AWS CloudfFormation TextMate Snippet file.')
-parser.add_argument('--input', type=str, default="CloudFormationResourceSpecification.json",
-                   help='Source (Input) file from AWS')
-
-parser.add_argument('--output', type=str, default="yaml.json",
-                   help='Output file')
-
-parser.add_argument('--remote', type=bool, default=False,
-                  help='Attempt to get the source file direct from AWS.')
-
-parser.add_argument('--url', type=str, default="https://d2stg8d246z9di.cloudfront.net/latest/gzip/CloudFormationResourceSpecification.json",
-                  help='Input web link')
-
-args = parser.parse_args()
+output_file="snippets/resource-types.json"
+# specs from us-east-1 https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-resource-specification.html
+url="https://d1uauaxba7bl26.cloudfront.net/latest/gzip/CloudFormationResourceSpecification.json"
 
 # Load the source data:
 
-if args.remote == True:
-   response = urllib.request.urlopen(args.url)
-   data = response.read()
-else:
-   data = json.load(open(args.input))
+r = requests.get(url)
+data = r.json()
 
-data = json.load(open(args.input))
-
-# Start the output data, add the default/extra snippets:
+# Start the output data
 
 output = {}
-output["cfn"] ={ "prefix" : "cfn", "body" : "AWSTemplateFormatVersion: 2010-09-09\r\n\r\nDescription: #String\r\n\r\nMetadata:\r\n\t#template metadata\r\n\r\nParameters:\r\n\t#set of parameters\r\n\r\nMappings:\r\n\t#set of mappings\r\n\r\nConditions:\r\n\t#set of conditions\r\n\r\nTransform:\r\n\t#set of transforms\r\n\r\nResources:\r\n\t#set of resources\r\n\r\nOutputs:\r\n\t#set of outputs\r\n", "description" : "Full template." }
-output["cfn-lite"] ={ "prefix" : "cfn-lite", "body" : "AWSTemplateFormatVersion: 2010-09-09\r\n\r\nDescription: #String\r\n\r\nParameters:\r\n\t#set of parameters\r\n\r\nResources:\r\n\t#set of resources\r\n\r\nOutputs:\r\n\t#set of outputs\r\n", "description" : "Full template." }
-output["metadata"] ={ "prefix" : "metadata", "body" : "", "description" : "" }
-output["parameters"] ={ "prefix" : "parameters", "body" : "${1:LogicalID}:\r\n\tType: String\r\n\tDefault: t2.micro\r\n\tAllowedValues:\r\n\t\t- t2.micro\r\n\t\t- m1.small\r\n\t\t- m1.large\r\n\tDescription: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.\r\n", "description" : "" }
-output["mappings"] ={ "prefix" : "mappings", "body" : "${1:LogicalID}:\r\n\tKey01:\r\n\t\tName: Value01\r\n\tKey02:\r\n\t\tName: Value02\r\n\tKey03:\r\n\t\tName: Value03\r\n", "description" : "" }
-output["conditions"] ={ "prefix" : "conditions", "body" : "${1:LogicalID}:\r\n\tIntrinsic function\r\n", "description" : "" }
-output["transforms"] ={ "prefix" : "transforms", "body" : "", "description" : "" }
-output["outputs"] ={ "prefix" : "outputs", "body" : "${1:LogicalID}:\r\n\tDescription: Information about the value\r\n\tValue: Value to return\r\n\tExport:\r\n\t\tName: Value to export\r\n", "description" : "" }
 
 # Add the resources to the output
 
@@ -63,7 +36,14 @@ for d in data['ResourceTypes']:
     body = body + ( '\tType: \"' + d + '\"\r\n' )
     body = body + ( "\tProperties:\r\n")
 
-    description = description + d + "\r\n" + data['ResourceTypes'][d]['Documentation']
+    description = "Attributes:\r\n"
+    if 'Attributes' in data['ResourceTypes'][d]:
+        for a in data['ResourceTypes'][d]['Attributes']:
+            # description = description + "Attributes: " + "\r\n\t" + a
+            description = description + "  " + a + "\r\n"
+    else:
+        description = "No Attributes\r\n"
+    print (description)
 
     # for each resources 'properties':
     for p in data['ResourceTypes'][d]['Properties']:
@@ -125,5 +105,6 @@ for d in data['ResourceTypes']:
 
 #print( json.dumps(output) )
 
-with open(args.output, "w") as text_file:
-    text_file.write( json.dumps(output, indent=4 ))
+with open(output_file, "w") as text_file:
+    text_file.write( json.dumps(output))
+    
