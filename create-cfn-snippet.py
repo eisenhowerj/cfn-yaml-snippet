@@ -43,7 +43,6 @@ for d in data['ResourceTypes']:
             description = description + "  " + a + "\r\n"
     else:
         description = "No Attributes\r\n"
-    print (description)
 
     # for each resources 'properties':
     for p in data['ResourceTypes'][d]['Properties']:
