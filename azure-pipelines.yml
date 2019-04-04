@@ -37,7 +37,8 @@ jobs:
 #    displayName: 'Create snippets json'
 
 - job: 'BuildExtension'
-  # dependsOn: 'Snippets'
+  variables:
+    - group: Compare
   pool:
     vmImage: 'Ubuntu-16.04'
 
@@ -69,12 +70,13 @@ jobs:
   # Check for update
   - bash: |
       # python check-for-update.py $(compare.md5)
-      echo '##vso[task.setvariable variable=compare.md5]testing123'
-      echo "new compare $(compare.md5)"
+      echo '##vso[task.setvariable variable=md5.compare]testing123'
+      echo "new compare $(md5.compare)"
     displayName: 'Check for update'
 
   - bash: |
-      echo "$(compare.md5)"
+      echo "$(md5.compare)"
+      exit 1
   # Generate snippets. If head exits 1, die
   - script: |
       python create-cfn-snippet.py
