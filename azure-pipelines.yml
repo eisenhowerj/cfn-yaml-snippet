@@ -37,7 +37,7 @@ jobs:
 #    displayName: 'Create snippets json'
 
 - job: 'BuildExtension'
-  dependsOn: 'Snippets'
+  # dependsOn: 'Snippets'
   pool:
     vmImage: 'Ubuntu-16.04'
 
