@@ -69,7 +69,8 @@ jobs:
   # Check for update
   - bash: |
       # python check-for-update.py $(compare.md5)
-      echo "##vso[task.setvariable variable=compare.md5]testing123"
+      echo '##vso[task.setvariable variable=compare.md5]testing123'
+      echo "new compare $(compare.md5)"
     displayName: 'Check for update'
 
   # Generate snippets. If head exits 1, die
