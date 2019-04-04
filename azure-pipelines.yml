@@ -73,6 +73,8 @@ jobs:
       echo "new compare $(compare.md5)"
     displayName: 'Check for update'
 
+  - bash: |
+      echo "$(compare.md5)"
   # Generate snippets. If head exits 1, die
   - script: |
       python create-cfn-snippet.py
