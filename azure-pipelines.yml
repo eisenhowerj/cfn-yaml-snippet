@@ -58,8 +58,10 @@ jobs:
     #   displayName: Set version number of package and build
   # Check for updates
   - script: |
-      echo "$compare.sha"
-
+      echo "$(compare.sha)"
+      echo $(compare.sha)
+      
+      exit 1
 
   # Install our dependencies
   - script: |
