@@ -18,4 +18,5 @@ if new_hash == old_hash:
     exit(1)
 
 # echo out new hash so pipeline script can update azure variable
+print(new_hash)
 print("##vso[task.setvariable variable=compare.md5]",new_hash)
