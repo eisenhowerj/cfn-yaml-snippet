@@ -7,7 +7,7 @@ trigger:
 - master
 
 jobs:
-- job: 'Check for update'
+- job: 'CompareSpecs'
   pool:
     vmImage: ubuntu-16.04
   
@@ -19,7 +19,7 @@ jobs:
     displayName: 'Get File and SHA'
 
 - job: 'Snippets'
-  dependsOn: 'Check for update'
+  dependsOn: 'CompareSpecs'
   pool:
     vmImage: 'Ubuntu-16.04'
   strategy:
