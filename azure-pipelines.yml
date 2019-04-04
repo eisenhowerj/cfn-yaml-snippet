@@ -58,10 +58,7 @@ jobs:
     #   displayName: Set version number of package and build
   # Check for updates
   - script: |
-      echo "$(compare.sha)"
-      echo $(compare.sha)
-      
-      exit 1
+      python check-for-update.py $(compare.md5)
 
   # Install our dependencies
   - script: |
