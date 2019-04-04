@@ -7,51 +7,44 @@ trigger:
 - master
 
 jobs:
-- job: 'CompareSpecs'
-  pool:
-    vmImage: ubuntu-16.04
-  
-  steps:
-  - script:
-      #!/bin/bash
-      echo "##vso[task.setvariable variable=compare.sha]crushed tomatoes"
-      exit 1
-    displayName: 'Get File and SHA'
 
-- job: 'Snippets'
-  dependsOn: 'CompareSpecs'
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  strategy:
-    matrix:
-      # Python35:
-      #   python.version: '3.5'
-      # Python36:
-      #   python.version: '3.6'
-      Python37:
-        python.version: '3.7'
-    maxParallel: 3
+# - job: 'Snippets'
+#   dependsOn: 'CompareSpecs'
+#   pool:
+#     vmImage: 'Ubuntu-16.04'
+#   strategy:
+#     matrix:
+#       # Python35:
+#       #   python.version: '3.5'
+#       # Python36:
+#       #   python.version: '3.6'
+#       Python37:
+#         python.version: '3.7'
+#     maxParallel: 3
 
-  steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '$(python.version)'
-      architecture: 'x64'
+#   steps:
+#   - task: UsePythonVersion@0
+#     inputs:
+#       versionSpec: '$(python.version)'
+#       architecture: 'x64'
 
-  - script: python -m pip install --upgrade pip && pip install -r requirements.txt
-    displayName: 'Install dependencies'
+#   - script: python -m pip install --upgrade pip && pip install -r requirements.txt
+#     displayName: 'Install dependencies'
 
-  - script: |
-      python create-cfn-snippet.py
-      head snippets/resource-types.json
-    displayName: 'Create snippets json'
+#   - script: |
+#       python create-cfn-snippet.py
+#       head snippets/resource-types.json
+#    displayName: 'Create snippets json'
 
-- job: 'Extension'
+- job: 'BuildExtension'
   dependsOn: 'Snippets'
   pool:
     vmImage: 'Ubuntu-16.04'
 
   steps:
+
+    # Turn on the following if we want build numbers from package.json displayed
+
     # - bash: |
     #   PACKAGE_VERSION=$(node -p "require('./package.json').version")
     #   if [ -n "$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER" ]; then
@@ -63,6 +56,21 @@ jobs:
     #   echo "##vso[build.updatebuildnumber]${VERSION_STRING}_${BUILD_BUILDID}"
     #   echo "$PACKAGE_VERSION" > version.txt
     #   displayName: Set version number of package and build
+  # Check for updates
+  - script: |
+      echo "$compare.sha"
+
+
+  # Install our dependencies
+  - script: |
+      python -m pip install --upgrade pip && pip install -r requirements.txt
+    displayName: 'Install dependencies'
+
+  # Generate snippets. If head exits 1, die
+  - script: |
+      python create-cfn-snippet.py
+      head snippets/resource-types.json
+    displayName: 'Create snippets json'
 
   # Acquire the `vsce` tool and use it to package
   - script: |
@@ -70,6 +78,7 @@ jobs:
       vsce package
     displayName: Create VSIX
 
+  # If previous script fails, display the logs
   - script: |
       npm run vscode:prepublish
       cat /home/vsts/.npm/_logs/*.log
