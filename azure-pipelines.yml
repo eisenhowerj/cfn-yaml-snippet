@@ -12,10 +12,9 @@ jobs:
     vmImage: ubuntu-16.04
   
   steps:
-  - task: GetFileAndSha@0
   - script:
       #!/bin/bash
-      echo "##vso[task.setvariable variable=compare-sha]crushed tomatoes"
+      echo "##vso[task.setvariable variable=compare.sha]crushed tomatoes"
       exit 1
     displayName: 'Get File and SHA'
 
