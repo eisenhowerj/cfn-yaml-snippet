@@ -70,6 +70,10 @@ jobs:
   # Check for update
   - bash: |
       python check-for-update.py
+      ls -al
+      git config --global user.email "eisenhowerj@gmail.com"
+      git config --global user.name "John Eisenhower"
+      git branch
       git commit -am "hash has been updated"
       git push
     displayName: 'Check for update'

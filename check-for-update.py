@@ -26,7 +26,7 @@ with open(hash_file, 'r') as text_file:
 if new_hash == old_hash:
     print("Hash matches, die")
     exit(1)
-
+print("Hashes did not match, update git")
 # echo out new hash so pipeline script can update azure variable
 with open(hash_file, "w") as text_file:
     text_file.write(new_hash)
