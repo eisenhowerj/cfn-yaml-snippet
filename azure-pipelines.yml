@@ -69,17 +69,14 @@ jobs:
 
   # Check for update
   - bash: |
-      git checkout master
-      python check-for-update.py
-      git config --global user.email "eisenhowerj@gmail.com"
-      git config --global user.name "John Eisenhower"
-      git branch
-      git commit -am "hash has been updated"
-      git push
+      echo $(md5.compare))
+      # python check-for-update.py $(compare.md5)
+      echo '##vso[task.setvariable variable=md5.compare]testing123'
+      echo "new compare $(md5.compare)"
     displayName: 'Check for update'
 
   - bash: |
-      echo "stop the builds"
+      echo "$(md5.compare)"
       exit 1
   # Generate snippets. If head exits 1, die
   - script: |
