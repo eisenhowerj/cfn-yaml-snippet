@@ -70,6 +70,8 @@ jobs:
   # Check for update
   - bash: |
       python check-for-update.py
+      git commit -am "hash has been updated"
+      git push
     displayName: 'Check for update'
 
   - bash: |
