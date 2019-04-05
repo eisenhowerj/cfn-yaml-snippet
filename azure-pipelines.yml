@@ -69,7 +69,7 @@ jobs:
 
   # Check for update
   - bash: |
-      echo $(md5.compare))
+      echo $(md5.compare)
       # python check-for-update.py $(compare.md5)
       echo '##vso[task.setvariable variable=md5.compare]testing123'
       echo "new compare $(md5.compare)"
