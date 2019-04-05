@@ -73,7 +73,7 @@ jobs:
     displayName: 'Check for update'
 
   - bash: |
-      echo "$(md5.compare)"
+      echo "stop the builds"
       exit 1
   # Generate snippets. If head exits 1, die
   - script: |
